@@ -143,8 +143,7 @@ async def process_chat(message: Message, state: FSMContext):
     # Проверяем на завершение диалога
     if text == "стоп":
         await message.answer("Диалог завершен.", reply_markup=show_keyboard())
-        await state.clear()  # Сбрасываем состояние обратно в None (деактивируем диалог)
-        return
+        await state.set_state(States.logged_user)  # Сбрасываем состояние обратно в None (деактивируем диалог)
 
     # Проверяем на команды (если сообщение начинается с '/')
     if text.startswith("/"):
@@ -163,12 +162,13 @@ async def process_chat(message: Message, state: FSMContext):
 Обращаться к Разным Ситуациям: Будь готов обсуждать широкий спектр тем — от личных отношений до профессиональной среды, уделяя внимание различным контекстам и их влиянию на эмоции.\
 Поддерживать Открытость и Доступность: Будь открытым ко всем вопросам и переживаниям. Напоминай пользователям, что их чувства важны, и каждый имеет право на их выражение.\
 Твоя цель — научить пользователей лучше понимать и управлять своими эмоциями, улучшая их качество жизни и межличностные отношения. Помогай им становиться более эмоционально грамотными, делая акцент на росте и развитии.")]
-        
+ 
     user_messages[user_id].append(HumanMessage(content=text))
     bot_answer = giga.invoke(user_messages[user_id]).content
     user_messages[user_id].append(AIMessage(content=bot_answer))
 
-    await message.answer(f"{bot_answer}")
+    if text != 'стоп':
+        await message.answer(f"{bot_answer}")
 
 ### Тестирование эмоционального интеллекта
 data_test = []
